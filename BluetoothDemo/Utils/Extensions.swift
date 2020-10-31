@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+extension Data {
+    func toIntArray() -> [Int]{
+        return self.map{ Int($0) }
+    }
+}
