@@ -191,7 +191,7 @@ extension DataParser{
                         let isWavePeak = self.bufferArray[i + 3] == 0x08
                         let spo2 = self.bufferArray[i + 4]
                         let pr = self.bufferArray[i + 6]
-                        let pi = self.getPI(self.bufferArray[i + 10])
+                        let pi = Float(self.bufferArray[i + 10]) / 10//this is different with the BCI Protocol
                         let wave = self.bufferArray[i + 12]
                         
                         self.saveData(spo2, pr, pi, wave, isWavePeak)
