@@ -107,6 +107,7 @@ extension Bluetooth{
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
         
         //Update once every 0.5 seconds, otherwise the refresh speed is too fast and the interface will be stuck
+        timer?.cancel()
         timer = Timer.publish(every: 0.5, on: .main, in: .default).autoconnect()
             .receive(on: queue)
             .sink(receiveValue: { (_) in
@@ -116,7 +117,6 @@ extension Bluetooth{
     
     func stopScan(){
         timer?.cancel()
-        timer = nil
         
         mCentralManager?.stopScan()
         mCentralState = .stopScan
@@ -145,15 +145,10 @@ extension Bluetooth{
         }
     }
     
-    func writeValue(data: Data){
-        queue.sync {
-            if let characteristic = mCharacteristic_receive{
-                mPeripheral?.writeValue(data, for: characteristic, type: .withoutResponse)
-            }
-        }
-    }
+   
     
-    func readValue(data: Data){
+    func readData(_ data: Data){
+        //Please note that the DispatchQueue nesting, synchronization nested synchronization
         queue.sync {
             DataParser.shared.readData(data)
         }
@@ -216,6 +211,15 @@ extension Bluetooth{
         
         self.writeValue(data: data)
     }
+    
+    func writeValue(data: Data){
+        queue.sync {
+            if let characteristic = mCharacteristic_receive{
+                mPeripheral?.writeValue(data, for: characteristic, type: .withoutResponse)
+            }
+        }
+    }
+    
     
 }
 
@@ -327,7 +331,7 @@ extension Bluetooth: CBPeripheralDelegate{
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let data = characteristic.value{
-            self.readValue(data: data)
+            self.readData(data)
         }
     }
     

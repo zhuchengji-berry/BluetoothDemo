@@ -36,6 +36,7 @@ struct HomeView: View {
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(12)
             }.padding(10)
+            .background(Color(.systemBackground))
             .onTapGesture(count: 1){
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil, from: nil, for: nil)
             }
@@ -53,7 +54,9 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView().environmentObject(Store.shared)
+        HomeView()
+            .environmentObject(Store.shared)
+            .environment(\.colorScheme, .dark)
     }
 }
 
@@ -102,7 +105,7 @@ struct NavView: View {
             .sheet(isPresented: self.$isPresent) {
                 DeviceView().environmentObject(Store.shared)
             }
-        }
+        }.background(Color(.systemBackground))
     }
 }
 
@@ -115,59 +118,68 @@ struct InfoView: View {
     var body: some View {
         
         VStack(spacing: 10){
-            HStack{
-                Text("Device: ")
-                    .foregroundColor(Color(.secondaryLabel))
-                    .bold()
-                Text(self.binding.mPeripheral.wrappedValue?.name ?? "--")
-                    .bold()
+            VStack(spacing: 10){
+                HStack{
+                    Text("Device: ")
+                        .foregroundColor(Color(.secondaryLabel))
+                        .bold()
+                    Text(self.binding.mPeripheral.wrappedValue?.name ?? "--")
+                        .bold()
+                    
+                    Spacer()
+                    
+                    if let _ = self.binding.mPeripheral.wrappedValue?.name{
+                        Button(action: {
+                            Bluetooth.shared.disconnect()
+                        }){
+                            Text("Disconnect")
+                                .font(.system(size: 12))
+                                .frame(width: 80, height: 30, alignment: .trailing)
+                        }
+                    }
+                }.frame(height: 30)
+                .onTapGesture(count: 1){
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil, from: nil, for: nil)
+                }
                 
-                Spacer()
-                
-                if let _ = self.binding.mPeripheral.wrappedValue?.name{
+                HStack{
+                    Text("New Name: ")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(.secondaryLabel))
+                    
+                    TextField("", text: self.binding.newName)
+                        .font(.system(size: 12))
+                        .padding([.leading,.trailing],10)
+                        .frame(height: 30)
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(4)
+                    
+                    Spacer()
                     Button(action: {
-                        Bluetooth.shared.disconnect()
+                        let name = self.binding.newName.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                        Bluetooth.shared.setName(name)
                     }){
-                        Text("Disconnect")
+                        Text("Set")
                             .font(.system(size: 12))
                             .frame(width: 80, height: 30, alignment: .trailing)
                     }
                 }
-            }.frame(height: 30)
-            
-            HStack{
-                Text("New Name: ")
-                    .font(.system(size: 14))
-                    .foregroundColor(Color(.secondaryLabel))
                 
-                TextField("", text: self.binding.newName)
-                    .font(.system(size: 12))
-                    .padding([.leading,.trailing],10)
-                    .frame(height: 30)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(4)
+                VersionCell(title: "Software Version: ",content: self.binding.softwareVersion.wrappedValue){
+                    Bluetooth.shared.getSoftwareVersion()
+                }
                 
-                Spacer()
-                Button(action: {
-                    let name = self.binding.newName.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                    Bluetooth.shared.setName(name)
-                }){
-                    Text("Set")
-                        .font(.system(size: 12))
-                        .frame(width: 80, height: 30, alignment: .trailing)
+                VersionCell(title: "Hardware Version: ",content: self.binding.hardwareVersion.wrappedValue){
+                    Bluetooth.shared.getHardwareVersion()
+                }
+                
+                VersionCell(title: "Bluetooth Version: ",content: self.binding.bluetoothVersion.wrappedValue){
+                    Bluetooth.shared.getBluetoothVersion()
                 }
             }
-            
-            VersionCell(title: "Software Version: ",content: self.binding.softwareVersion.wrappedValue){
-                Bluetooth.shared.getSoftwareVersion()
-            }
-            
-            VersionCell(title: "Hardware Version: ",content: self.binding.hardwareVersion.wrappedValue){
-                Bluetooth.shared.getHardwareVersion()
-            }
-            
-            VersionCell(title: "Bluetooth Version: ",content: self.binding.bluetoothVersion.wrappedValue){
-                Bluetooth.shared.getBluetoothVersion()
+            .contentShape(Rectangle())
+            .onTapGesture(count: 1){
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil, from: nil, for: nil)
             }
             
             VStack{
@@ -185,6 +197,7 @@ struct InfoView: View {
                 }.pickerStyle(SegmentedPickerStyle())
             }
         }.padding(10)
+        .background(Color(.systemBackground))
     }
 }
 
@@ -254,9 +267,6 @@ struct VersionCell: View {
                     .font(.system(size: 12))
                     .frame(width: 80, height: 30, alignment: .trailing)
             }
-        }
-        .onTapGesture(count: 1){
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil, from: nil, for: nil)
         }
     }
 }

@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        HomeView().environmentObject(Store.shared)
+        HomeView()
+            .environmentObject(Store.shared)
             .onAppear {
                 Store.shared.run()
             }

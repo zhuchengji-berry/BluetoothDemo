@@ -84,8 +84,13 @@ extension Store{
     
     func reset(){
         DispatchQueue.main.async {
-            self.home = AppState.Home()
+            let protocolSelectIndex = self.home.protocolSelectIndex
+            var tempHome = AppState.Home()
+            tempHome.protocolSelectIndex = protocolSelectIndex
+            
+            self.home = tempHome
             self.device = AppState.Device()
+            DataParser.shared.reset(protocolSelectIndex: protocolSelectIndex)
         }
     }
     
