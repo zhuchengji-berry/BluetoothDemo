@@ -230,15 +230,17 @@ struct ParamCell: View {
     var unit: String
     var bgColor: Color
     var body: some View {
-        ZStack{
-            VStack{
-                Text(title).font(.system(size: 17))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Spacer()
-                Text(unit).font(.system(size: 17, weight: .thin))
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+        GeometryReader{ geo in
+            ZStack{
+                VStack{
+                    Text(title).font(.system(size: 17))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer()
+                    Text(unit).font(.system(size: 17, weight: .thin))
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                Text(value).font(.system(size: min(geo.size.width, geo.size.height) / 2, weight: .thin))
             }
-            Text(value).font(.system(size: 40))
         }
         .padding(10)
         .foregroundColor(Color(.white))

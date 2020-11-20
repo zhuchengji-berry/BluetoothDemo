@@ -26,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AB3776BD256790930042E79E /* BluetoothDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BluetoothDemo.entitlements; sourceTree = "<group>"; };
 		AB957338254A5F8D001B67D1 /* heartBeat.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = heartBeat.wav; sourceTree = "<group>"; };
 		ABB1E6FD25495DFB00693793 /* BluetoothDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BluetoothDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABB1E70025495DFB00693793 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -76,6 +77,7 @@
 		ABB1E6FF25495DFB00693793 /* BluetoothDemo */ = {
 			isa = PBXGroup;
 			children = (
+				AB3776BD256790930042E79E /* BluetoothDemo.entitlements */,
 				ABB1E72B2549622300693793 /* View */,
 				ABB1E71A25495FBC00693793 /* Redux */,
 				ABB1E71625495F1800693793 /* Utils */,
@@ -350,6 +352,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = BluetoothDemo/BluetoothDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"BluetoothDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = DGJH8ZAAEG;
@@ -361,6 +364,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.berry.demo3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -371,6 +375,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = BluetoothDemo/BluetoothDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"BluetoothDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = DGJH8ZAAEG;
@@ -382,6 +387,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.berry.demo3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

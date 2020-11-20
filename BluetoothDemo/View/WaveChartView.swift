@@ -16,16 +16,24 @@ struct WaveChartView: View {
     static let gradientStart = Color("spo2Color")
     static let gradientEnd = Color("prColor")
     
+    func getPath(_ geo: GeometryProxy) -> CGMutablePath{
+        let path = CGMutablePath()
+        path.move(to: CGPoint(x: 0, y: geo.size.height))
+        path.addLines(between: self.binding.pointArray.wrappedValue)
+        path.addLine(to: CGPoint(x: geo.size.width, y: geo.size.height))
+        path.addLine(to: CGPoint(x: 0, y: geo.size.height))
+        path.closeSubpath()
+        
+        DataParser.shared.updateSize(size: geo.size)
+        
+        return path
+    }
+    
     var body: some View {
         GeometryReader{ geo in
             ZStack(alignment: .leading){
                 
-                Path{ path in
-                    path.move(to: CGPoint(x: 0, y: geo.size.height))
-                    path.addLines(self.binding.pointArray.wrappedValue)
-                    path.addLine(to: CGPoint(x: geo.size.width, y: geo.size.height))
-                    path.addLine(to: CGPoint(x: 0, y: geo.size.height))
-                }.fill(LinearGradient(
+                Path(getPath(geo)).fill(LinearGradient(
                     gradient: .init(colors: [Self.gradientStart, Self.gradientEnd]),
                     startPoint: .init(x: 0, y: 0),
                     endPoint: .init(x: 0, y: 1)
@@ -37,9 +45,6 @@ struct WaveChartView: View {
                     .position(self.binding.spacerPosition.wrappedValue)
             }
             .clipped()
-            .onAppear {
-                DataParser.shared.updateSize(size: geo.size)
-            }
         }
     }
 }

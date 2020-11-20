@@ -298,13 +298,8 @@ extension Bluetooth: CBPeripheralDelegate{
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         print("services = ", peripheral.services as Any)
-        if let services = peripheral.services{
-            for service in services{
-                if service.isPrimary{
-                    peripheral.discoverCharacteristics([CBUUID(string: CHARACTERISTIC_UUID_SEND),CBUUID(string: CHARACTERISTIC_UUID_RECEIVE),CBUUID(string: CHARACTERISTIC_UUID_RENAME)], for: service)
-                    return
-                }
-            }
+        if let service = peripheral.services?.first{
+            peripheral.discoverCharacteristics([CBUUID(string: CHARACTERISTIC_UUID_SEND),CBUUID(string: CHARACTERISTIC_UUID_RECEIVE),CBUUID(string: CHARACTERISTIC_UUID_RENAME)], for: service)
         }
     }
     
