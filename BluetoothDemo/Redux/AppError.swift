@@ -23,7 +23,7 @@ extension AppError: LocalizedError{
     var localizedDescription: LocalizedStringKey{
         switch self {
         case .deviceConnectFail : return "Device connect fail"
-        default: return "Unknown error"
+        default : return "Unknown error"
         }
     }
 }

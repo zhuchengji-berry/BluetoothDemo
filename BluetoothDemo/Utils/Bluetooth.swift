@@ -40,7 +40,8 @@ class Bluetooth: NSObject {
     
     private var mPeripheralArray: [CBPeripheral] = []
     
-    private var timer: AnyCancellable?//This timer is used to slow down the refresh rate of Bluetooth search
+    //This timer is used to slow down the refresh rate of Bluetooth search
+    private var timer: AnyCancellable?
     
     //Bluetooth list after speed reduction
     private var deviceArray = [CBPeripheral](){
@@ -87,9 +88,8 @@ class Bluetooth: NSObject {
         case disconnected = 5
     }
     
-    private var queue: DispatchQueue{
-        DispatchQueue(label: "BluetoothQueue")//Serial queue
-    }
+    private var queue = DispatchQueue(label: "BluetoothQueue")//Serial queue
+    
 }
 
 extension Bluetooth{
@@ -109,9 +109,10 @@ extension Bluetooth{
         //Update once every 0.5 seconds, otherwise the refresh speed is too fast and the interface will be stuck
         timer?.cancel()
         timer = Timer.publish(every: 0.5, on: .main, in: .default).autoconnect()
-            .receive(on: queue)
             .sink(receiveValue: { (_) in
-                self.deviceArray = self.mPeripheralArray
+                self.queue.async {
+                    self.deviceArray = self.mPeripheralArray
+                }
             })
     }
     
@@ -145,13 +146,10 @@ extension Bluetooth{
         }
     }
     
-   
+    
     
     func readData(_ data: Data){
-        //Please note that the DispatchQueue nesting, synchronization nested synchronization
-        queue.sync {
-            DataParser.shared.readData(data)
-        }
+        DataParser.shared.readData(data)
     }
     
     //After setting the name, the Bluetooth device needs to be disconnected and reconnected. After a few seconds, you can see the updated name
@@ -299,7 +297,10 @@ extension Bluetooth: CBPeripheralDelegate{
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         print("services = ", peripheral.services as Any)
         if let service = peripheral.services?.first{
-            peripheral.discoverCharacteristics([CBUUID(string: CHARACTERISTIC_UUID_SEND),CBUUID(string: CHARACTERISTIC_UUID_RECEIVE),CBUUID(string: CHARACTERISTIC_UUID_RENAME)], for: service)
+            peripheral.discoverCharacteristics(
+                [CBUUID(string: CHARACTERISTIC_UUID_SEND),
+                 CBUUID(string: CHARACTERISTIC_UUID_RECEIVE),
+                 CBUUID(string: CHARACTERISTIC_UUID_RENAME)], for: service)
         }
     }
     

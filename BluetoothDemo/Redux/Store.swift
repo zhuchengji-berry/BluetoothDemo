@@ -15,9 +15,7 @@ class Store: ObservableObject{
     static let shared = Store()
     private init(){}
     
-    private var queue: DispatchQueue{
-        DispatchQueue(label: "StoreQueue", attributes: .concurrent)
-    }
+    private var queue = DispatchQueue(label: "StoreQueue", attributes: .concurrent)
     
     @Published var home = AppState.Home()
     @Published var device = AppState.Device()
@@ -31,12 +29,25 @@ extension Store{
         Bluetooth.shared.run()
     }
     
+    func reset(){
+        DispatchQueue.main.async {
+            let protocolSelectIndex = self.home.protocolSelectIndex
+            var tempHome = AppState.Home()
+            tempHome.protocolSelectIndex = protocolSelectIndex
+            
+            self.home = tempHome
+            self.device = AppState.Device()
+            DataParser.shared.reset(protocolSelectIndex: protocolSelectIndex)
+        }
+    }
     
     func soundSwitch(){
-        let isEnable = !home.isSoundEnable
-        
-        home.isSoundEnable = isEnable
-        DataParser.shared.isSoundEnable = isEnable
+        DispatchQueue.main.async {
+            let isEnable = !self.home.isSoundEnable
+            
+            self.home.isSoundEnable = isEnable
+            DataParser.shared.isSoundEnable = isEnable
+        }
     }
     
     func updateHomeParams(_ spo2Txt: String, _ prTxt: String, _ piTxt: String){
@@ -79,18 +90,6 @@ extension Store{
     func updateBluetoothVersion(_ version: String){
         DispatchQueue.main.async {
             self.home.bluetoothVersion = "V" + version
-        }
-    }
-    
-    func reset(){
-        DispatchQueue.main.async {
-            let protocolSelectIndex = self.home.protocolSelectIndex
-            var tempHome = AppState.Home()
-            tempHome.protocolSelectIndex = protocolSelectIndex
-            
-            self.home = tempHome
-            self.device = AppState.Device()
-            DataParser.shared.reset(protocolSelectIndex: protocolSelectIndex)
         }
     }
     

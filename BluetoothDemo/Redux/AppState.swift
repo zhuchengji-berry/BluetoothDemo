@@ -56,8 +56,8 @@ struct AppState {
     
     struct Device {
         var deviceArray = [CBPeripheral]()
-        var error: AppError?
         var isConnected = PassthroughSubject<Bool,Never>()
+        var error: AppError?
     }
     
 }

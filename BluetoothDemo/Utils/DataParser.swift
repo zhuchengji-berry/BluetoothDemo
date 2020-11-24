@@ -33,22 +33,14 @@ class DataParser {
     
     var waveSize = CGSize(width: 0, height: 0)
     var spacerPosition = CGPoint.zero
-    private var waveArray: [CGPoint] = []
     
-    var pointArray: [CGPoint]{
-        get {
-            queue.sync {
-                return self.waveArray//Keep thread safety
-            }
-        }
-    }
+    var waveArray: [CGPoint] = []
     
     private var waveTimer: AnyCancellable?
     private var recordTimer: AnyCancellable?
     
-    private var queue: DispatchQueue{
-        DispatchQueue(label: "DataParserQueue")
-    }
+    private var queue = DispatchQueue(label: "DataParserQueue")
+    private var audioQueue = DispatchQueue(label: "AudioQueue")
     
 }
 
@@ -56,27 +48,28 @@ extension DataParser{
     
     func startTimer(){
         recordTimer = Timer.publish(every: 1, on: .main, in: .default).autoconnect()
-            .receive(on: queue)
             .sink(receiveValue: { (_) in
-                let spo2Txt = self.spo2 == 0 ? "--" : "\(self.spo2)"
-                let prTxt = self.pr == 0 ? "--" : "\(self.pr)"
-                let piTxt = self.pi == 0 ? "--" : String(format: "%.1f", self.pi)
-                
-                Store.shared.updateHomeParams(spo2Txt, prTxt, piTxt)
+                self.queue.async {
+                    let spo2Txt = self.spo2 == 0 ? "--" : "\(self.spo2)"
+                    let prTxt = self.pr == 0 ? "--" : "\(self.pr)"
+                    let piTxt = self.pi == 0 ? "--" : String(format: "%.1f", self.pi)
+                    
+                    Store.shared.updateHomeParams(spo2Txt, prTxt, piTxt)
+                }
             })
         
         waveTimer = Timer.publish(every: 0.033, on: .main, in: .default).autoconnect()
-            .receive(on: queue)
             .sink(receiveValue: { (_) in
-                if Store.shared.home.isRefreshWave{
-                    Store.shared.updateHomeWave(self.pointArray, self.spacerPosition)
+                self.queue.async {
+                    if Store.shared.home.isRefreshWave{
+                        Store.shared.updateHomeWave(self.waveArray, self.spacerPosition)
+                    }
                 }
             })
     }
     
-    
     func stopTimer(){
-        queue.sync {
+        queue.async {
             self.recordTimer?.cancel()
             self.waveTimer?.cancel()
             
@@ -86,7 +79,7 @@ extension DataParser{
     }
     
     func reset(protocolSelectIndex: Int){
-        queue.sync {
+        queue.async {
             var pointArray: [CGPoint] = []
             for i in 0...self.maxIndex{
                 pointArray.append(CGPoint(x: (CGFloat(i) / CGFloat(self.maxIndex)) * self.waveSize.width,
@@ -107,10 +100,10 @@ extension DataParser{
     }
     
     func updateSize(size: CGSize){
-        queue.sync {
+        queue.async {
             self.waveSize = size
             self.maxIndex = Int(size.width)
-            //如果尺寸发生了变化，重置数组
+            //if waveSize changed, reset waveArray to adapt waveChartView dynamic
             if self.waveArray.count != self.maxIndex + 1{
                 var pointArray: [CGPoint] = []
                 for i in 0...self.maxIndex{
@@ -121,22 +114,22 @@ extension DataParser{
                 self.waveArray = pointArray
                 self.waveIndex = 0
                 
-                Store.shared.updateHomeWave(self.pointArray, self.spacerPosition)//刷新图表
+                Store.shared.updateHomeWave(self.waveArray, self.spacerPosition)//刷新图表
             }
         }
     }
     
     func readData(_ data:Data){
-        //Please note that the DispatchQueue nesting, synchronization nested synchronization
-        queue.sync {
-            if protocolSelectIndex == 0{
-                parseWithBCIProtocol(data)
+        //notice the current thread
+        queue.async {
+            print("thread = \(Thread.current)")
+            if self.protocolSelectIndex == 0{
+                self.parseWithBCIProtocol(data)
             }else{
-                parseWithBerryProtocol(data)
+                self.parseWithBerryProtocol(data)
             }
         }
     }
-    
     
     func parseWithBerryProtocol(_ data:Data){
         self.bufferArray += data.toIntArray()
@@ -228,8 +221,6 @@ extension DataParser{
         Store.shared.updateBluetoothVersion(version)
     }
     
-    
-    
     func parseWithBCIProtocol(_ data:Data){
         self.bufferArray += data.toIntArray()
         
@@ -286,7 +277,6 @@ extension DataParser{
         }
     }
     
-    
     func updateWave(_ value: Int){
         let point = CGPoint(x: (CGFloat(self.waveIndex) / CGFloat(self.maxIndex)) * self.waveSize.width,
                             y: (CGFloat(128 - value) / 128) * self.waveSize.height)
@@ -304,7 +294,6 @@ extension DataParser{
         self.spacerPosition = CGPoint(x: point.x, y: self.waveSize.height / 2)
     }
     
-    
     func getPI(_ value: Int) -> Float{
         switch (value & 0b00001111) {
         case 0: return 0.1
@@ -320,14 +309,12 @@ extension DataParser{
         }
     }
     
-    //播放声音
     func playSound(){
         guard isSoundEnable, let url = soundURL else{
             return
         }
         
-        //In a formal project, you should run it asynchronously
-        DispatchQueue.global().sync {
+        audioQueue.async {
             do{
                 self.audioPlayer = try AVAudioPlayer(contentsOf: url)
                 self.audioPlayer?.play()
