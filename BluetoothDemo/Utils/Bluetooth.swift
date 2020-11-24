@@ -95,10 +95,11 @@ class Bluetooth: NSObject {
 extension Bluetooth{
     
     func run(){
-        mCentralManager = CBCentralManager(delegate: self, queue: queue)
+            mCentralManager = CBCentralManager(delegate: self, queue: queue)
     }
     
     func scan(){
+        
         mCentralState = .scaning
         
         mPeripheralArray.removeAll(keepingCapacity: false)
@@ -152,7 +153,6 @@ extension Bluetooth{
         DataParser.shared.readData(data)
     }
     
-    //After setting the name, the Bluetooth device needs to be disconnected and reconnected. After a few seconds, you can see the updated name
     func setName(_ name: String){
         if let characteristic = mCharacteristic_rename,
            name.count > 0,
@@ -167,6 +167,15 @@ extension Bluetooth{
             newData.append(data)
             
             mPeripheral?.writeValue(newData, for: characteristic, type: .withoutResponse)
+            
+            if let peripheral = mPeripheral{
+                //If you want to see the name change immediately, you need to disconnect the device and then connect it again.
+                //The reason for the delay is to allow enough time for the name change
+                self.queue.asyncAfter(deadline: .now() + 1) {
+                    self.connect(peripheral)
+                }
+            }
+            
         }
     }
     
@@ -231,6 +240,10 @@ extension Bluetooth: CBCentralManagerDelegate{
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         if let _ = peripheral.name{
+            //when you change the peripheral`s name, peripheral.name will not refresh immediately, but the localName here is up to date
+            //if you want refresh name, you should disconnect device then reconnect
+            //print("localName = \(advertisementData["kCBAdvDataLocalName"] ?? "")")
+            
             if let index = mPeripheralArray.map({$0.identifier}).firstIndex(of: peripheral.identifier){
                 mPeripheralArray[index] = peripheral
             }else{
@@ -282,6 +295,8 @@ extension Bluetooth: CBCentralManagerDelegate{
         }
     }
     
+    
+    
     //    func centralManager(_ central: CBCentralManager, willRestoreState dict: [String : Any]) {
     //
     //    }
@@ -332,7 +347,7 @@ extension Bluetooth: CBPeripheralDelegate{
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        print("didWriteValueFor = \(String(describing: error))")
+        print("didWriteValueFor = \(peripheral.name)")
     }
     
     func peripheralDidUpdateName(_ peripheral: CBPeripheral) {

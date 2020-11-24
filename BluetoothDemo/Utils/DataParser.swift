@@ -122,7 +122,7 @@ extension DataParser{
     func readData(_ data:Data){
         //notice the current thread
         queue.async {
-            print("thread = \(Thread.current)")
+            //print("thread = \(Thread.current)")
             if self.protocolSelectIndex == 0{
                 self.parseWithBCIProtocol(data)
             }else{
