@@ -15,7 +15,7 @@ class Store: ObservableObject{
     static let shared = Store()
     private init(){}
     
-    private var queue = DispatchQueue(label: "StoreQueue", attributes: .concurrent)
+    private let queue = DispatchQueue(label: "StoreQueue", attributes: .concurrent)
     
     @Published var home = AppState.Home()
     @Published var device = AppState.Device()

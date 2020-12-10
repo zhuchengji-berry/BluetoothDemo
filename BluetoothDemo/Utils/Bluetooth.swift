@@ -88,7 +88,7 @@ class Bluetooth: NSObject {
         case disconnected = 5
     }
     
-    private var queue = DispatchQueue(label: "BluetoothQueue")//Serial queue
+    private let queue = DispatchQueue(label: "BluetoothQueue")//Serial queue
     
 }
 
@@ -347,7 +347,7 @@ extension Bluetooth: CBPeripheralDelegate{
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        print("didWriteValueFor = \(peripheral.name)")
+        print("didWriteValueFor = \(peripheral.name ?? "")")
     }
     
     func peripheralDidUpdateName(_ peripheral: CBPeripheral) {

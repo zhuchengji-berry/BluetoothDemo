@@ -39,8 +39,8 @@ class DataParser {
     private var waveTimer: AnyCancellable?
     private var recordTimer: AnyCancellable?
     
-    private var queue = DispatchQueue(label: "DataParserQueue")
-    private var audioQueue = DispatchQueue(label: "AudioQueue")
+    private let queue = DispatchQueue(label: "DataParserQueue")
+    private let audioQueue = DispatchQueue(label: "AudioQueue")
     
 }
 
