@@ -35,12 +35,10 @@ struct HomeView: View {
                 WaveChartView()
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(12)
-            }.padding(10)
-            .background(Color(.systemBackground))
-            .onTapGesture(count: 1){
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil, from: nil, for: nil)
             }
-            
+            .padding(10)
+            .background(Color(.systemBackground))
+            .onTapEndEditing()
         }
         .onAppear{
             Store.shared.home.isRefreshWave = true
@@ -56,7 +54,7 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .environmentObject(Store.shared)
-            .environment(\.colorScheme, .dark)
+            .environment(\.colorScheme, .light)
     }
 }
 
@@ -79,7 +77,7 @@ struct NavView: View {
                     .aspectRatio(contentMode: .fit)
                     .padding(10)
                     .frame(width: 44, height: 44)
-                    .colorMultiply(.blue)
+                    .foregroundColor(Color(.systemTeal))
             }
             
             Spacer()
@@ -100,7 +98,7 @@ struct NavView: View {
                     .aspectRatio(contentMode: .fit)
                     .padding(10)
                     .frame(width: 44, height: 44)
-                    .colorMultiply(.blue)
+                    .colorMultiply(Color(.systemTeal))
             }
             .sheet(isPresented: self.$isPresent) {
                 DeviceView().environmentObject(Store.shared)
@@ -121,10 +119,8 @@ struct InfoView: View {
             VStack(spacing: 10){
                 HStack{
                     Text("Device: ")
-                        .foregroundColor(Color(.secondaryLabel))
-                        .bold()
+                        .foregroundColor(Color(.label))
                     Text(self.binding.mPeripheral.wrappedValue?.name ?? "--")
-                        .bold()
                     
                     Spacer()
                     
@@ -134,13 +130,14 @@ struct InfoView: View {
                         }){
                             Text("Disconnect")
                                 .font(.system(size: 12))
-                                .frame(width: 80, height: 30, alignment: .trailing)
+                                .frame(width: 80, height: 30)
+                                .foregroundColor(Color.white)
+                                .background(Color(.systemTeal))
+                                .cornerRadius(6.0)
                         }
                     }
                 }.frame(height: 30)
-                .onTapGesture(count: 1){
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil, from: nil, for: nil)
-                }
+                .onTapEndEditing()
                 
                 HStack{
                     Text("New Name: ")
@@ -152,7 +149,7 @@ struct InfoView: View {
                         .padding([.leading,.trailing],10)
                         .frame(height: 30)
                         .background(Color(.secondarySystemBackground))
-                        .cornerRadius(4)
+                        .cornerRadius(6.0)
                     
                     Spacer()
                     Button(action: {
@@ -161,7 +158,10 @@ struct InfoView: View {
                     }){
                         Text("Set")
                             .font(.system(size: 12))
-                            .frame(width: 80, height: 30, alignment: .trailing)
+                            .frame(width: 80, height: 30)
+                            .foregroundColor(Color.white)
+                            .background(Color(.systemTeal))
+                            .cornerRadius(6.0)
                     }
                 }
                 
@@ -176,11 +176,8 @@ struct InfoView: View {
                 VersionCell(title: "Bluetooth Version: ",content: self.binding.bluetoothVersion.wrappedValue){
                     Bluetooth.shared.getBluetoothVersion()
                 }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture(count: 1){
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),to: nil, from: nil, for: nil)
-            }
+            }.contentShape(Rectangle())
+            .onTapEndEditing()
             
             VStack{
                 Picker("", selection: self.binding.frequencySelectIndex) {
@@ -267,7 +264,10 @@ struct VersionCell: View {
             Button(action: action){
                 Text("Get")
                     .font(.system(size: 12))
-                    .frame(width: 80, height: 30, alignment: .trailing)
+                    .frame(width: 80, height: 30)
+                    .foregroundColor(Color.white)
+                    .background(Color(.systemTeal))
+                    .cornerRadius(6.0)
             }
         }
     }

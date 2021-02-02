@@ -42,13 +42,23 @@ class DataParser {
     private let queue = DispatchQueue(label: "DataParserQueue")
     private let audioQueue = DispatchQueue(label: "AudioQueue")
     
+    var ifYouNeedVersionInfo = true
+    
+    var isSoftwareVersionReceiving = false
+    var isHardwareVersionReceiving = false
+    var isBluetoothVersionReceiving = false
+    
+    var softwareVersion = ""
+    var hardwareVersion = ""
+    var bluetoothVersion = ""
+    
 }
 
 extension DataParser{
     
     func startTimer(){
         recordTimer = Timer.publish(every: 1, on: .main, in: .default).autoconnect()
-            .sink(receiveValue: { (_) in
+            .sink{ _ in
                 self.queue.async {
                     let spo2Txt = self.spo2 == 0 ? "--" : "\(self.spo2)"
                     let prTxt = self.pr == 0 ? "--" : "\(self.pr)"
@@ -56,16 +66,16 @@ extension DataParser{
                     
                     Store.shared.updateHomeParams(spo2Txt, prTxt, piTxt)
                 }
-            })
+            }
         
         waveTimer = Timer.publish(every: 0.033, on: .main, in: .default).autoconnect()
-            .sink(receiveValue: { (_) in
+            .sink{ _ in
                 self.queue.async {
                     if Store.shared.home.isRefreshWave{
                         Store.shared.updateHomeWave(self.waveArray, self.spacerPosition)
                     }
                 }
-            })
+            }
     }
     
     func stopTimer(){
@@ -132,21 +142,21 @@ extension DataParser{
     }
     
     func parseWithBerryProtocol(_ data:Data){
-        self.bufferArray += data.toIntArray()
+        bufferArray += data.toIntArray()
         
         var i = 0
         var validIndex = 0
-        let maxCount = self.bufferArray.count - 20
+        let maxCount = bufferArray.count - 20
         
         while i <= maxCount{
             
-            if self.bufferArray[i] == 0xFF && self.bufferArray[i + 1] == 0xAA{
+            if bufferArray[i] == 0xFF && bufferArray[i + 1] == 0xAA{
                 
-                let checkSum = self.bufferArray[i + 19]
+                let checkSum = bufferArray[i + 19]
                 
                 var sum = 0
                 for j in 0...18{
-                    sum += self.bufferArray[i + j]
+                    sum += bufferArray[i + j]
                 }
                 
                 //check fail
@@ -157,31 +167,31 @@ extension DataParser{
                 }
                 
                 //check success
-                let type = self.bufferArray[i + 2]
-                let versionFlag = self.bufferArray[i + 3]
+                let type = bufferArray[i + 2]
+                let versionFlag = bufferArray[i + 3]
                 
                 if versionFlag == 0x56 && (type == 0x53 || type == 0x48 || type == 0x42){
                     switch type {
                     case 0x53:
-                        let array = Array(self.bufferArray.suffix(self.bufferArray.count - (i + 4)).prefix(15))
-                        self.saveSoftwareVersion(array)
+                        let array = Array(bufferArray.suffix(bufferArray.count - (i + 4)).prefix(15))
+                        saveSoftwareVersion(array)
                     case 0x48:
-                        let array = Array(self.bufferArray.suffix(self.bufferArray.count - (i + 4)).prefix(15))
-                        self.saveHardwareVersion(array)
+                        let array = Array(bufferArray.suffix(bufferArray.count - (i + 4)).prefix(15))
+                        saveHardwareVersion(array)
                     case 0x42:
-                        let array = Array(self.bufferArray.suffix(self.bufferArray.count - (i + 4)).prefix(15))
-                        self.saveBluetoothVersion(array)
+                        let array = Array(bufferArray.suffix(bufferArray.count - (i + 4)).prefix(15))
+                        saveBluetoothVersion(array)
                     default:
                         break
                     }
                 }else{
-                    let isWavePeak = self.bufferArray[i + 3] == 0x08
-                    let spo2 = self.bufferArray[i + 4]
-                    let pr = self.bufferArray[i + 6]
-                    let pi = Float(self.bufferArray[i + 10]) / 10//this is different with the BCI Protocol
-                    let wave = self.bufferArray[i + 12]
+                    let isWavePeak = bufferArray[i + 3] == 0x08
+                    let spo2 = bufferArray[i + 4]
+                    let pr = bufferArray[i + 6]
+                    let pi = Float(bufferArray[i + 10]) / 10//this is different with the BCI Protocol
+                    let wave = bufferArray[i + 12]
                     
-                    self.saveData(spo2, pr, pi, wave, isWavePeak)
+                    saveData(spo2, pr, pi, wave, isWavePeak)
                 }
                 i += 19
             }else{
@@ -191,7 +201,7 @@ extension DataParser{
             continue
         }
         
-        self.bufferArray = Array(self.bufferArray.suffix(self.bufferArray.count - validIndex))
+        bufferArray = Array(bufferArray.suffix(bufferArray.count - validIndex))
     }
     
     func saveSoftwareVersion(_ array: [Int]){
@@ -200,7 +210,7 @@ extension DataParser{
             .joined()
             .trimmingCharacters(in: .whitespacesAndNewlines)
         
-        Store.shared.updateSoftwareVersion(version)
+        Store.shared.updateSoftwareVersion("V" + version)
     }
     
     func saveHardwareVersion(_ array: [Int]){
@@ -209,7 +219,7 @@ extension DataParser{
             .joined()
             .trimmingCharacters(in: .whitespacesAndNewlines)
         
-        Store.shared.updateHardwareVersion(version)
+        Store.shared.updateHardwareVersion("V" + version)
     }
     
     func saveBluetoothVersion(_ array: [Int]){
@@ -218,30 +228,28 @@ extension DataParser{
             .joined()
             .trimmingCharacters(in: .whitespacesAndNewlines)
         
-        Store.shared.updateBluetoothVersion(version)
+        Store.shared.updateBluetoothVersion("V" + version)
     }
     
     func parseWithBCIProtocol(_ data:Data){
-        self.bufferArray += data.toIntArray()
+        bufferArray += data.toIntArray()
         
         var i = 0
         var validIndex = 0
-        let maxCount = self.bufferArray.count - 5
+        let maxCount = bufferArray.count - 5
         
         while i <= maxCount{
-            if self.bufferArray[i] >= self.FLAG &&
-                self.bufferArray[i + 1] < self.FLAG &&
-                self.bufferArray[i + 2] < self.FLAG &&
-                self.bufferArray[i + 3] < self.FLAG &&
-                self.bufferArray[i + 4] < self.FLAG {
+            if bufferArray[i] >= FLAG &&
+                bufferArray[i + 1] < FLAG &&
+                bufferArray[i + 2] < FLAG &&
+                bufferArray[i + 3] < FLAG &&
+                bufferArray[i + 4] < FLAG {
                 
-                let spo2 = self.bufferArray[i + 4]
-                let pr = self.bufferArray[i + 2] >= 0b01000000 ? self.bufferArray[i + 3] + self.FLAG : self.bufferArray[i + 3]
-                let pi = self.getPI(self.bufferArray[i])
-                let wave = self.bufferArray[i + 1]
-                let isWavePeak = self.bufferArray[i] >= 0b11000000
-                
-                self.saveData(spo2, pr, pi, wave, isWavePeak)
+                if ifYouNeedVersionInfo{
+                    parseDataWithVersion(i)
+                }else{
+                    parseDataWithoutVersion(i)
+                }
                 
                 i += 5
             }else{
@@ -250,8 +258,77 @@ extension DataParser{
             validIndex = i
             continue
         }
-        self.bufferArray = Array(self.bufferArray.suffix(self.bufferArray.count - validIndex))
+        bufferArray = Array(bufferArray.suffix(bufferArray.count - validIndex))
     }
+    
+    func parseDataWithVersion(_ i: Int){
+        
+        switch (bufferArray[i], bufferArray[i + 1]) {
+        case (0xFF, 0x56):
+            isSoftwareVersionReceiving = true
+        case (0xFE, 0x56):
+            isHardwareVersionReceiving = true
+        case (0xFD, 0x56):
+            isBluetoothVersionReceiving = true
+        default:
+            break
+        }
+        
+        if isSoftwareVersionReceiving || isHardwareVersionReceiving || isBluetoothVersionReceiving{
+            if isSoftwareVersionReceiving{
+                if softwareVersion.count < 11{
+                    for index in 1...4{
+                        softwareVersion.append(String(UnicodeScalar(bufferArray[i + index])!))
+                    }
+                }else{
+                    isSoftwareVersionReceiving = false
+                    softwareVersion.removeLast()//delete the last byte 0x00
+                    Store.shared.updateSoftwareVersion(softwareVersion)
+                    softwareVersion = ""
+                }
+            }
+            
+            if isHardwareVersionReceiving{
+                if hardwareVersion.count < 4{
+                    for index in 1...4{
+                        hardwareVersion.append(String(UnicodeScalar(bufferArray[i + index])!))
+                    }
+                }else{
+                    isHardwareVersionReceiving = false
+                    Store.shared.updateHardwareVersion(hardwareVersion)
+                    hardwareVersion = ""
+                }
+            }
+            
+            if isBluetoothVersionReceiving{
+                if bluetoothVersion.count < 11{
+                    for index in 1...4{
+                        bluetoothVersion.append(String(UnicodeScalar(bufferArray[i + index])!))
+                    }
+                }else{
+                    isBluetoothVersionReceiving = false
+                    bluetoothVersion.removeLast()//delete the last byte 0x00
+                    Store.shared.updateBluetoothVersion(bluetoothVersion)
+                    bluetoothVersion = ""
+                }
+            }
+            
+        }else{
+            parseDataWithoutVersion(i)
+        }
+    }
+    
+    
+    func parseDataWithoutVersion(_ i: Int){
+        let spo2 = bufferArray[i + 4]
+        let pr = bufferArray[i + 2] >= 0b01000000 ? bufferArray[i + 3] + FLAG : bufferArray[i + 3]
+        let pi = getPI(bufferArray[i])
+        let wave = bufferArray[i + 1]
+        let isWavePeak = bufferArray[i] >= 0b11000000
+        
+        saveData(spo2, pr, pi, wave, isWavePeak)
+    }
+    
     
     func saveData(_ spo2: Int, _ pr: Int, _ pi: Float, _ wave: Int, _ isWavePeak: Bool){
         if spo2 >= 35 && spo2 < 100{

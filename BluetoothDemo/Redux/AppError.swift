@@ -22,8 +22,8 @@ enum AppError: Error, Identifiable{
 extension AppError: LocalizedError{
     var localizedDescription: LocalizedStringKey{
         switch self {
-        case .deviceConnectFail : return "Device connect fail"
-        default : return "Unknown error"
+        case .deviceConnectFail: return "Device connect fail"
+        default:                 return "Unknown error"
         }
     }
 }

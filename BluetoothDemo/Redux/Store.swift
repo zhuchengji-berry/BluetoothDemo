@@ -77,19 +77,19 @@ extension Store{
     
     func updateSoftwareVersion(_ version: String){
         DispatchQueue.main.async {
-            self.home.softwareVersion = "V" + version
+            self.home.softwareVersion = version
         }
     }
     
     func updateHardwareVersion(_ version: String){
         DispatchQueue.main.async {
-            self.home.hardwareVersion = "V" + version
+            self.home.hardwareVersion = version
         }
     }
     
     func updateBluetoothVersion(_ version: String){
         DispatchQueue.main.async {
-            self.home.bluetoothVersion = "V" + version
+            self.home.bluetoothVersion = version
         }
     }
     

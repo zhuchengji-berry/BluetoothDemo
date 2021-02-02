@@ -38,7 +38,7 @@ struct DeviceView: View {
                         .foregroundColor(Color(.white))
                         .cornerRadius(12)
                         .padding(10)
-                        .colorMultiply(.blue)
+                        .colorMultiply(Color(.systemTeal))
                 },
                 trailing: Button(action: {
                     Bluetooth.shared.refresh()
@@ -48,17 +48,15 @@ struct DeviceView: View {
                         .frame(width: 24, height: 24)
                         .foregroundColor(Color(.white))
                         .padding(10)
-                        .colorMultiply(.blue)
+                        .colorMultiply(Color(.systemTeal))
                 })
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .onAppear{
-            print("停止刷新波形")
             Store.shared.home.isRefreshWave = false
             Bluetooth.shared.scan()
         }
         .onDisappear {
-            print("刷新波形")
             Store.shared.home.isRefreshWave = true
             Bluetooth.shared.stopScan()
         }
