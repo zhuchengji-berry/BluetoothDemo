@@ -27,10 +27,20 @@ struct HomeView: View {
             Divider()
             
             VStack(spacing: 10){
-                HStack(spacing: 10){
-                    ParamView(index: 0)
-                    ParamView(index: 1)
-                    ParamView(index: 2)
+                if binding.protocolSelectIndex.wrappedValue == 2 {
+                    HStack(spacing: 10){
+                        ParamView(index: 0)
+                        ParamView(index: 1)
+                        ParamView(index: 2)
+                        ParamView(index: 3)
+                        ParamView(index: 4)
+                    }
+                } else {
+                    HStack(spacing: 10){
+                        ParamView(index: 0)
+                        ParamView(index: 1)
+                        ParamView(index: 2)
+                    }
                 }
                 WaveChartView()
                     .background(Color(.secondarySystemBackground))
@@ -83,8 +93,9 @@ struct NavView: View {
             Spacer()
             
             Picker(selection: self.binding.protocolSelectIndex, label: Text("Picker")){
-                Text("BCI Protocol").tag(0)
-                Text("Berry Protocol").tag(1)
+                Text("BCI").tag(0)
+                Text("Berry").tag(1)
+                Text("cNIBP").tag(2)
             }.pickerStyle(SegmentedPickerStyle())
             .frame(width: 220)
             
@@ -173,9 +184,12 @@ struct InfoView: View {
                     Bluetooth.shared.getHardwareVersion()
                 }
                 
-                VersionCell(title: "Bluetooth Version: ",content: self.binding.bluetoothVersion.wrappedValue){
-                    Bluetooth.shared.getBluetoothVersion()
+                if self.binding.protocolSelectIndex.wrappedValue != 2 {
+                    VersionCell(title: "Bluetooth Version: ",content: self.binding.bluetoothVersion.wrappedValue){
+                        Bluetooth.shared.getBluetoothVersion()
+                    }
                 }
+               
             }.contentShape(Rectangle())
             .onTapEndEditing()
             
@@ -213,8 +227,13 @@ struct ParamView: View {
                 ParamCell(value: binding.spo2Txt.wrappedValue, title: "SPO2", unit: "%", bgColor: Color("spo2Color"))
             case 1:
                 ParamCell(value: binding.prTxt.wrappedValue, title: "PR", unit: "bpm", bgColor: Color("prColor"))
-            default:
+            case 2:
                 ParamCell(value: binding.piTxt.wrappedValue, title: "PI", unit: "%", bgColor: Color("piColor"))
+            case 3:
+                ParamCell(value: binding.sbpTxt.wrappedValue, title: "SBP", unit: "mmHg", bgColor: Color("sbpColor"))
+            case 4:
+                ParamCell(value: binding.dbpTxt.wrappedValue, title: "DBP", unit: "mmHg", bgColor: Color("dbpColor"))
+            default:ParamCell(value: "--", title: "?", unit: "", bgColor: Color("piColor"))
             }
         }
     }

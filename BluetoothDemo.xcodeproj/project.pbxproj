@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AB957339254A5F8D001B67D1 /* heartBeat.wav in Resources */ = {isa = PBXBuildFile; fileRef = AB957338254A5F8D001B67D1 /* heartBeat.wav */; };
+		ABA863BB25E4A1B500744D62 /* WaveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA863BA25E4A1B500744D62 /* WaveView.swift */; };
 		ABB1E70125495DFB00693793 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB1E70025495DFB00693793 /* AppDelegate.swift */; };
 		ABB1E70325495DFB00693793 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB1E70225495DFB00693793 /* SceneDelegate.swift */; };
 		ABB1E70525495DFB00693793 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB1E70425495DFB00693793 /* ContentView.swift */; };
@@ -28,6 +29,7 @@
 /* Begin PBXFileReference section */
 		AB3776BD256790930042E79E /* BluetoothDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BluetoothDemo.entitlements; sourceTree = "<group>"; };
 		AB957338254A5F8D001B67D1 /* heartBeat.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = heartBeat.wav; sourceTree = "<group>"; };
+		ABA863BA25E4A1B500744D62 /* WaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveView.swift; sourceTree = "<group>"; };
 		ABB1E6FD25495DFB00693793 /* BluetoothDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BluetoothDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABB1E70025495DFB00693793 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ABB1E70225495DFB00693793 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				ABB1E72C2549623C00693793 /* HomeView.swift */,
 				ABB1E7302549624800693793 /* DeviceView.swift */,
 				ABB1E733254962A200693793 /* WaveChartView.swift */,
+				ABA863BA25E4A1B500744D62 /* WaveView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -207,6 +210,7 @@
 				ABB1E734254962A200693793 /* WaveChartView.swift in Sources */,
 				ABB1E71825495F2900693793 /* Bluetooth.swift in Sources */,
 				ABB1E72D2549623C00693793 /* HomeView.swift in Sources */,
+				ABA863BB25E4A1B500744D62 /* WaveView.swift in Sources */,
 				ABB1E70125495DFB00693793 /* AppDelegate.swift in Sources */,
 				ABB1E7202549600F00693793 /* AppState.swift in Sources */,
 				ABB1E7312549624800693793 /* DeviceView.swift in Sources */,

@@ -95,7 +95,7 @@ class Bluetooth: NSObject {
 extension Bluetooth{
     
     func run(){
-            mCentralManager = CBCentralManager(delegate: self, queue: queue)
+        mCentralManager = CBCentralManager(delegate: self, queue: queue)
     }
     
     func scan(){
@@ -183,6 +183,13 @@ extension Bluetooth{
         var value = 0xF0 + index
         let data = Data(bytes: &value, count: 1)
         
+        self.writeValue(data: data)
+    }
+    
+    func setFrequenceCNIBP(_ index: Int){
+        var array = [1, 50, 100, 200]
+        var value = [0xF8 , array[index]]
+        let data = Data(bytes: &value, count: 2)
         self.writeValue(data: data)
     }
     
@@ -394,4 +401,3 @@ extension Bluetooth: CBPeripheralDelegate{
     //
     //
 }
-

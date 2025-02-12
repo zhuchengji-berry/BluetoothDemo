@@ -9,9 +9,9 @@ import Foundation
 import SwiftUI
 
 extension Data {
-    func toIntArray() -> [Int]{
-        self.map{ Int($0) }
-    }
+    
+    var intArray: [Int] { self.map(Int.init) }
+    
 }
 
 

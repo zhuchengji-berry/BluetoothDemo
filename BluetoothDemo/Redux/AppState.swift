@@ -17,6 +17,8 @@ struct AppState {
         var spo2Txt = "--"
         var prTxt = "--"
         var piTxt = "--"
+        var sbpTxt = "--"
+        var dbpTxt = "--"
         
         var pointArray = [CGPoint]()
         var spacerPosition = CGPoint.zero
@@ -36,7 +38,11 @@ struct AppState {
         
         var frequencySelectIndex = 1{
             didSet{
-                Bluetooth.shared.setFrequence(frequencySelectIndex)
+                if protocolSelectIndex == 2 {
+                    Bluetooth.shared.setFrequenceCNIBP(frequencySelectIndex)
+                } else {
+                    Bluetooth.shared.setFrequence(frequencySelectIndex)
+                }
             }
         }
         

@@ -50,12 +50,14 @@ extension Store{
         }
     }
     
-    func updateHomeParams(_ spo2Txt: String, _ prTxt: String, _ piTxt: String){
+    func updateHomeParams(_ spo2Txt: String, _ prTxt: String, _ piTxt: String, _ sbpTxt: String, _ dbpTxt: String){
         queue.async {
             var obj = self.home
             obj.spo2Txt = spo2Txt
             obj.prTxt = prTxt
             obj.piTxt = piTxt
+            obj.sbpTxt = sbpTxt
+            obj.dbpTxt = dbpTxt
             
             DispatchQueue.main.async {
                 self.home = obj
